@@ -31,7 +31,7 @@ app.use(bodyParser.json({ type: '*/*' }));
 router(app);
 
 //db
-mongoose.connect('mongodb://localhost:auth/public-api');
+mongoose.connect('mongodb://mongo:auth/public-api');
 
 //server
 const port = process.env.PORT || 3090;

@@ -1,0 +1,14 @@
+version: "2"
+services:
+  api:
+    build: .
+    ports:
+      - "3090:3090"
+    links:
+      - mongo
+  mongo:
+    image: mongo
+    volumes:
+      - /usr/local/var/mongodb/:/data/db
+    ports:
+      - "27017:27017"
