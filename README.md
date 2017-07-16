@@ -1,14 +1,12 @@
-## API with JWT authentication ##
+## API with JWT + websockets + data scraping realtime app ##
 
-- JWT
-- mongodb integration
-- bcrypt for passwords
 - helmet and overload protection
 - CORS
-
-
-## websocket server ##
+- JWT authentication
+- CRUD and mongodb integration
+- bcrypt for passwords
+- websockets with public and protected channels
 - firebase integration
-- public and jwt-protected channels
+- data scraping functionality
 
 +++ docker configuration +++

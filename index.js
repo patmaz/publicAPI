@@ -13,6 +13,8 @@ const router = require('./router');
 const publicWs = require('./controllers/ws').public;
 const privateWs = require('./controllers/ws').private;
 const firebase = require('./services/firebaseApi');
+const getFirstTweetId = require('./services/dataScraping').getFirstTweet;
+const config = require('./config');
 
 //app
 const app = express();
@@ -52,6 +54,9 @@ const streamingUrl = firebase.init();
 const io = require('socket.io')(server);
 publicWs(io, streamingUrl);
 privateWs(io);
+
+//get tweet
+getFirstTweetId(config.scrapingTargetUrl);
 
 server.listen(port);
 console.log('Server listen on port: ', port);
