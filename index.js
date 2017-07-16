@@ -5,10 +5,14 @@ const express = require('express');
 const http = require('http');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
-const router = require('./router');
 const mongoose = require('mongoose');
 const toobusy = require('toobusy-js');
 const helmet = require('helmet');
+
+const router = require('./router');
+const publicWs = require('./controllers/ws').public;
+const privateWs = require('./controllers/ws').private;
+const firebase = require('./services/firebaseApi');
 
 //app
 const app = express();
@@ -20,7 +24,7 @@ app.use(function(req, res, next) {
     }
 });
 app.use(helmet());
-app.use(function(req, res, next) {
+app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
@@ -31,10 +35,23 @@ app.use(bodyParser.json({ type: '*/*' }));
 router(app);
 
 //db
-mongoose.connect('mongodb://mongo:auth/public-api');
+if (process.env.NODE_ENV === 'docker') {
+    mongoose.connect('mongodb://mongo:auth/public-api');
+} else {
+    mongoose.connect('mongodb://localhost/public-api');
+}
 
 //server
 const port = process.env.PORT || 3090;
 const server = http.createServer(app);
+
+//firebase
+const streamingUrl = firebase.init();
+
+//websocket
+const io = require('socket.io')(server);
+publicWs(io, streamingUrl);
+privateWs(io);
+
 server.listen(port);
 console.log('Server listen on port: ', port);

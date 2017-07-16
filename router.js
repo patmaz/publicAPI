@@ -8,7 +8,7 @@ const Items = require('./controllers/items');
 const passportService = require('./services/passport');
 const passport = require('passport');
 
-const requireToken = passport.authenticate('jwt', { session: false });
+const requireToken = passport.authenticate('jwtApi', { session: false });
 const requireSignIn = passport.authenticate('local', { session: false });
 
 module.exports = function(app) {
