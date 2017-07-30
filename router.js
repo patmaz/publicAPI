@@ -5,6 +5,7 @@ const Auth = require('./controllers/auth');
 const Lorem = require('./controllers/lorem');
 const Users = require('./controllers/users');
 const Items = require('./controllers/items');
+const push = require('./controllers/push').push;
 const passportService = require('./services/passport');
 const passport = require('passport');
 
@@ -32,5 +33,7 @@ module.exports = function(app) {
     app.put('/v1/items/:id', requireToken, Items.updateItem);
 
     app.delete('/v1/items/:id', requireToken, Items.deleteItem);
+
+    app.get('/push', push);
 
 };
