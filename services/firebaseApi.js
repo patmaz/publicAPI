@@ -23,3 +23,25 @@ exports.saveUser = (user) => {
         .ref('stats/' + + Date.now())
         .set(user);
 };
+
+exports.savePushSub = (sub) => {
+    firebase.database()
+        .ref('sub/' + + Date.now())
+        .set(sub);
+};
+
+exports.fetchPushSub = (cb) => {
+    const ref = firebase.database().ref('sub');
+
+    ref.once('value')
+        .then((snapshot) => {
+            const subs = snapshot.val();
+
+            for (let key in subs) {
+                if (subs.hasOwnProperty(key)) {
+                    cb(subs[key]);
+                }
+            }
+        })
+        .catch((err) => console.error(err));
+};

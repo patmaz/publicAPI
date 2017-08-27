@@ -1,9 +1,7 @@
 const webPush = require('web-push');
 
 const config = require('../config');
-
-const pushSubscription = config.pushSubscription;
-const pushSubscription2 = config.pushSubscription2;
+const fetchPushSub = require('../services/firebaseApi').fetchPushSub;
 
 const payload = 'Here is a payload 66666!';
 
@@ -13,16 +11,14 @@ const options = {
     TTL: 60,
 };
 
-
-exports.push = () => {
+const sendPush = (sub) => {
     webPush.sendNotification(
-        pushSubscription,
+        sub,
         payload,
         options
     ).catch((err) => console.log(err));
-  webPush.sendNotification(
-    pushSubscription2,
-    payload,
-    options
-  ).catch((err) => console.log(err));
+};
+
+exports.push = () => {
+    fetchPushSub(sendPush);
 };
