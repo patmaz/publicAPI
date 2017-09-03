@@ -8,5 +8,6 @@
 - websockets with public and protected channels
 - firebase integration
 - data scraping functionality
+- web push notifications
 
 +++ docker configuration +++

@@ -1,9 +1,9 @@
 const webPush = require('web-push');
 
 const config = require('../config');
-const fetchPushSub = require('../services/firebaseApi').fetchPushSub;
-
-const payload = 'Here is a payload 66666!';
+const fetchSub = require('../services/firebaseApi').fetchPushSub;
+const saveSub = require('../services/firebaseApi').savePushSub;
+const subMsg = require('../services/firebaseApi').getSubMsg;
 
 const options = {
     gcmAPIKey: config.gcmAPIKey,
@@ -11,7 +11,7 @@ const options = {
     TTL: 60,
 };
 
-const sendPush = (sub) => {
+const sendPush = (sub, payload) => {
     webPush.sendNotification(
         sub,
         payload,
@@ -20,5 +20,23 @@ const sendPush = (sub) => {
 };
 
 exports.push = () => {
-    fetchPushSub(sendPush);
+    fetchSub(sendPush);
+};
+
+exports.savePushSub = (req, res) => {
+    const sub = req.body;
+
+    if (!sub) {
+        return res.status(422).json({ data: 'no data provided' });
+    }
+
+    saveSub(sub, (success, data) => {
+        if (!success) {
+            return res.status(500).json(data);
+        }
+
+        if (success) {
+            return res.status(200).json(data);
+        }
+    });
 };

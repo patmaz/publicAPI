@@ -24,24 +24,55 @@ exports.saveUser = (user) => {
         .set(user);
 };
 
-exports.savePushSub = (sub) => {
-    firebase.database()
-        .ref('sub/' + + Date.now())
-        .set(sub);
-};
-
 exports.fetchPushSub = (cb) => {
     const ref = firebase.database().ref('sub');
+    const refMsg = firebase.database().ref('subMsg');
 
-    ref.once('value')
-        .then((snapshot) => {
-            const subs = snapshot.val();
+    refMsg.once('value')
+        .then((msg) => {
 
-            for (let key in subs) {
-                if (subs.hasOwnProperty(key)) {
-                    cb(subs[key]);
-                }
-            }
+            ref.once('value')
+                .then((snapshot) => {
+                    const subs = snapshot.val();
+
+                    for (let key in subs) {
+                        if (subs.hasOwnProperty(key)) {
+                            cb(subs[key], msg.val());
+                        }
+                    }
+                })
+                .catch((err) => console.error(err));
+
         })
         .catch((err) => console.error(err));
+};
+
+exports.savePushSub = ({ sub, key }, cb) => {
+    const ref = firebase.database().ref('sub');
+
+    if (key !== null) {
+        const item = ref.child(key);
+        item.update({
+            endpoint: sub.endpoint,
+            keys: sub.keys,
+        }, (err) => {
+            if (err) {
+                return cb(false, err);
+            }
+            cb(true, { data: 'success' });
+        });
+        return;
+    }
+
+    const refPush = firebase.database().ref('sub').push();
+    refPush.set({
+        endpoint: sub.endpoint,
+        keys: sub.keys,
+    }, (err) => {
+        if (err) {
+            return cb(false, err);
+        }
+
+        cb(true, { subDbKey: refPush.key });
+    });
 };
