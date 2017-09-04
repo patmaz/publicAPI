@@ -35,7 +35,7 @@ module.exports = function(app) {
 
     app.delete('/v1/items/:id', requireToken, Items.deleteItem);
 
-    app.get('/push', push);
+    //app.get('/push', push);
 
     app.post('/push/sub', savePushSub);
 };

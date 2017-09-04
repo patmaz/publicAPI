@@ -11,16 +11,12 @@ const options = {
     TTL: 60,
 };
 
-const sendPush = (sub, payload) => {
+exports.sendPush = (sub, payload) => {
     webPush.sendNotification(
         sub,
         payload,
         options
     ).catch((err) => console.log(err));
-};
-
-exports.push = () => {
-    fetchSub(sendPush);
 };
 
 exports.savePushSub = (req, res) => {

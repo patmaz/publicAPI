@@ -11,11 +11,19 @@ exports.init = () => {
 };
 
 exports.saveUrl = (url) => {
-    firebase.database()
-        .ref('streaming/' + 'url')
-        .set({
-            url,
-        });
+    const streamingUrl = firebase.database().ref('streaming/' + 'url');
+    const sendPush = require('../controllers/push').sendPush;
+
+    streamingUrl.once('value')
+        .then((urlInDb) => {
+            if (urlInDb.val().url != url) {
+                streamingUrl.set({
+                    url,
+                });
+                this.fetchPushSub(sendPush);
+            }
+        })
+        .catch((err) => console.log(err));
 };
 
 exports.saveUser = (user) => {
