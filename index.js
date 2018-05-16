@@ -37,10 +37,15 @@ app.use(bodyParser.json({ type: '*/*' }));
 router(app);
 
 //db
+const options = { server: { socketOptions: { keepAlive: 300000, connectTimeoutMS: 30000 } },
+    replset: { socketOptions: { keepAlive: 300000, connectTimeoutMS : 30000 } } };
+
 if (process.env.NODE_ENV === 'docker') {
     mongoose.connect('mongodb://mongo:auth/public-api');
-} else {
+} else if (process.env.NODE_ENV === 'local') {
     mongoose.connect('mongodb://localhost/public-api');
+} else {
+    mongoose.connect(config.mLabMyApi, options);
 }
 
 //server
