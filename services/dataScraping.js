@@ -39,6 +39,7 @@ exports.beer = () => {
         },
     };
 
+    console.log('beer scraping ', Date().toString());
     promise(options)
         .then($ => {
             const links = $('.r a');
@@ -48,6 +49,7 @@ exports.beer = () => {
                 promises.push(
                     promise(nakedLink)
                 );
+                console.log('beer scraping ' + nakedLink);
             });
 
             q.all(promises).then(data => {
@@ -59,6 +61,8 @@ exports.beer = () => {
                             .split(' ')
                             .filter(word => word.length > 0)
                             .forEach(word => words.push(word.toLowerCase()));
+
+                        console.log(words.length);
                     } catch(err) {
                         console.error('markup problem on specific page');
                     }
@@ -75,11 +79,13 @@ exports.beer = () => {
                         });
                     }
                 });
+                console.log('beer scraping ', words.length);
 
                 saveBeerWords({
                     date: Date().toString(),
                     rank: ranking.sort((a, b) =>  b.count - a.count).slice(0, 50)
                 });
+                console.log('beer scraping END' + Date().toString());
             });
         })
         .catch(err => {
