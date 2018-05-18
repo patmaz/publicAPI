@@ -29,9 +29,6 @@ exports.getFirstTweet = (url) => {
 };
 
 exports.beer = () => {
-    const words = [];
-    const ranking = [];
-
     const options = {
         uri: 'https://www.google.pl/search?q=piwo+kraftowe',
         transform: body => {
@@ -46,49 +43,60 @@ exports.beer = () => {
             const promises = [];
             links.each((index, link) => {
                 const nakedLink = $(link).attr('href').replace('/url?q=', '').split('&')[0];
-                promises.push(
-                    promise(nakedLink)
-                );
-                console.log('beer scraping ' + nakedLink);
+                if (nakedLink.indexOf('http') === 0) {
+                    promises.push(
+                        promise(nakedLink)
+                    );
+                }
             });
 
-            q.all(promises).then(data => {
-                data.forEach(page => {
-                    const $page = cheerio.load(page);
-                    try {
-                        $page('body').text()
-                            .replace(/\s+/g, ' ')
-                            .split(' ')
-                            .filter(word => word.length > 0)
-                            .forEach(word => words.push(word.toLowerCase()));
-
-                        console.log(words.length);
-                    } catch(err) {
-                        console.error('markup problem on specific page');
-                    }
-                });
-
-                words.forEach(word => {
-                    const index = ranking.findIndex(item => item.name === word);
-                    if (index > -1) {
-                        ranking[index].count++;
-                    } else {
-                        ranking.push({
-                            name: word,
-                            count: 1,
-                        });
-                    }
-                });
-                console.log('beer scraping ', words.length);
-
-                saveBeerWords({
-                    date: Date().toString(),
-                    rank: ranking.sort((a, b) =>  b.count - a.count).slice(0, 50)
-                });
-                console.log('beer scraping END' + Date().toString());
+            q.all(promises.splice(0, 5)).then(data => {
+                processData(data);
+            });
+            q.all(promises.splice(5, 5)).then(data => {
+                processData(data);
             });
         })
         .catch(err => {
             console.error('google markup changed');
         });
+};
+
+const processData = (data) => {
+    const words = [];
+    const ranking = [];
+
+    data.forEach(page => {
+        const $page = cheerio.load(page);
+        try {
+            $page('body').text()
+                .replace(/\s+/g, ' ')
+                .split(' ')
+                .filter(word => word.length > 0)
+                .forEach(word => words.push(word.toLowerCase()));
+
+            console.log(words.length);
+        } catch(err) {
+            console.error('markup problem on specific page');
+        }
+    });
+
+    words.forEach(word => {
+        const index = ranking.findIndex(item => item.name === word);
+        if (index > -1) {
+            ranking[index].count++;
+        } else {
+            ranking.push({
+                name: word,
+                count: 1,
+            });
+        }
+    });
+    console.log('beer scraping ', words.length);
+
+    saveBeerWords({
+        date: Date().toString(),
+        rank: ranking.sort((a, b) =>  b.count - a.count).slice(0, 50)
+    });
+    console.log('beer scraping END' + Date().toString());
 };
