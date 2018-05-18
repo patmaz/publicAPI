@@ -32,6 +32,12 @@ exports.saveUser = (user) => {
         .set(user);
 };
 
+exports.saveBeerWords = (beerWords) => {
+    firebase.database()
+        .ref('beerWords/' + + Date.now())
+        .set(beerWords);
+};
+
 exports.fetchPushSub = (cb) => {
     const ref = firebase.database().ref('sub');
     const refMsg = firebase.database().ref('subMsg');

@@ -14,6 +14,7 @@ const publicWs = require('./controllers/ws').public;
 const privateWs = require('./controllers/ws').private;
 const firebase = require('./services/firebaseApi');
 const getFirstTweetId = require('./services/dataScraping').getFirstTweet;
+const beer = require('./services/dataScraping').beer;
 const config = require('./config');
 
 //app
@@ -62,6 +63,7 @@ privateWs(io);
 
 //get tweet
 getFirstTweetId(config.scrapingTargetUrl);
+setInterval(beer, config.scrapingInterval);
 
 server.listen(port);
 console.log('Server listen on port: ', port);
