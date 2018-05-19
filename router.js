@@ -7,6 +7,7 @@ const Users = require('./controllers/users');
 const Items = require('./controllers/items');
 const push = require('./controllers/push').push;
 const savePushSub = require('./controllers/push').savePushSub;
+const Beer = require('./controllers/beer');
 const passportService = require('./services/passport');
 const passport = require('passport');
 
@@ -38,4 +39,6 @@ module.exports = function(app) {
     //app.get('/push', push);
 
     app.post('/push/sub', savePushSub);
+
+    app.get('/beer', Beer.getBeerRank);
 };

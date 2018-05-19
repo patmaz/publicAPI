@@ -38,6 +38,18 @@ exports.saveBeerWords = (beerWords) => {
         .set(beerWords);
 };
 
+exports.fetchBeerWords = () => {
+    return new Promise((resolve, reject) => {
+        firebase.database()
+            .ref('beerWords')
+            .once('value')
+            .then((snapshot) => {
+                const ranks = snapshot.val();
+                resolve(ranks);
+            });
+    });
+};
+
 exports.fetchPushSub = (cb) => {
     const ref = firebase.database().ref('sub');
     const refMsg = firebase.database().ref('subMsg');

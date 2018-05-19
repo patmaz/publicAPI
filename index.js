@@ -61,7 +61,7 @@ const io = require('socket.io')(server);
 publicWs(io, streamingUrl);
 privateWs(io);
 
-//get tweet
+//scraping
 getFirstTweetId(config.scrapingTargetUrl);
 setInterval(beer, config.scrapingInterval);
 
