@@ -41,6 +41,7 @@ exports.beer = () => {
         .then($ => {
             const links = $('.r a');
             const promises = [];
+
             links.each((index, link) => {
                 const nakedLink = $(link).attr('href').replace('/url?q=', '').split('&')[0];
                 if (nakedLink.indexOf('http') === 0) {
@@ -50,16 +51,21 @@ exports.beer = () => {
                 }
             });
 
-            q.all(promises.splice(0, 5)).then(data => {
-                processData(data);
-            });
-            q.all(promises.splice(5, 5)).then(data => {
-                processData(data);
-            });
+            runInBatches(promises, 3);
         })
         .catch(err => {
             console.error('google markup changed');
         });
+};
+
+const runInBatches = (promises, batchSize) => {
+    for (let i = 0; i <= promises.length; i = i + batchSize) {
+        const start = i;
+        const end = i + batchSize;
+        q.all(promises.slice(start, end)).then(data => {
+            processData(data);
+        });
+    }
 };
 
 const processData = (data) => {
@@ -94,9 +100,10 @@ const processData = (data) => {
     });
     console.log('beer scraping ', words.length);
 
-    saveBeerWords({
-        date: Date().toString(),
-        rank: ranking.sort((a, b) =>  b.count - a.count).slice(0, 50)
-    });
+    words.length > 0 &&
+        saveBeerWords({
+            date: Date().toString(),
+            rank: ranking.sort((a, b) =>  b.count - a.count).slice(0, 50),
+        });
     console.log('beer scraping END' + Date().toString());
 };
