@@ -14,6 +14,8 @@ const passport = require('passport');
 const requireToken = passport.authenticate('jwtApi', { session: false });
 const requireSignIn = passport.authenticate('local', { session: false });
 
+const redis = require('./services/redis');
+
 module.exports = function(app) {
 
     app.get('/lorem/:number', Lorem.lorem);
@@ -40,5 +42,5 @@ module.exports = function(app) {
 
     app.post('/push/sub', savePushSub);
 
-    app.get('/beer', Beer.getBeerRank);
+    app.get('/beer', redis.checkCache, Beer.getBeerRank);
 };

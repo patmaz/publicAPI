@@ -1,4 +1,5 @@
 const firebase = require('firebase');
+const redis = require('../services/redis');
 
 const config = require('../config');
 
@@ -33,6 +34,8 @@ exports.saveUser = (user) => {
 };
 
 exports.saveBeerWords = (beerWords) => {
+    console.log('######### scraping clear cache');
+    redis.set('/beer', null, []);
     firebase.database()
         .ref('beerWords/' + + Date.now())
         .set(beerWords);
