@@ -3,7 +3,7 @@ const jwt = require('jwt-simple');
 const User = require('../models/user').UserModelClass;
 
 const saveUser = require('../services/firebaseApi').saveUser;
-const getBeerRank = require('./beer').getBeerRank;
+const getBeerRankWs = require('./beer').getBeerRankWs;
 const secret = require('../config').secret;
 
 exports.public = (io, streamingUrl) => {
@@ -50,7 +50,7 @@ exports.private = (io, streamBeerWords) => {
     });
 
     privateWs.on('connection', async (socket) => {
-        const data = await getBeerRank(null, null, true);
+        const data = await getBeerRankWs();
         socket.emit('data', { data });
         privateWs.emit('users', { data: _size(io.of('/priv').clients().sockets) });
 
