@@ -53,6 +53,10 @@ exports.fetchBeerWords = () => {
     });
 };
 
+exports.streamBeerWords = () => {
+    return firebase.database().ref('beerWords');
+};
+
 exports.fetchPushSub = (cb) => {
     const ref = firebase.database().ref('sub');
     const refMsg = firebase.database().ref('subMsg');

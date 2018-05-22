@@ -30,7 +30,7 @@ exports.public = (io, streamingUrl) => {
     });
 };
 
-exports.private = (io) => {
+exports.private = (io, streamBeerWords) => {
     const privateWs = io.of('/priv');
     privateWs.use((socket, next) => {
         let token;
@@ -49,6 +49,32 @@ exports.private = (io) => {
     });
 
     privateWs.on('connection', (socket) => {
-        socket.emit('priv', { data: 'priv access granated' });
+        socket.emit('priv', { data: [] });
+
+        streamBeerWords.on('value', (snapshot) => {
+            const ranks = snapshot.val();
+            const greatRank = [];
+
+            for (const rank in ranks) {
+                if (ranks.hasOwnProperty(rank)) {
+                    const tmpRank = ranks[rank].rank;
+                    tmpRank.forEach(item => {
+                        const index = greatRank.findIndex(greatItem => greatItem.name === item.name);
+
+                        if (index > -1) {
+                            greatRank[index].count = greatRank[index].count + item.count;
+                        } else {
+                            greatRank.push({
+                                name: item.name,
+                                count: item.count,
+                            });
+                        }
+                    });
+                }
+            }
+
+            const sortedGreatRank = greatRank.sort((a, b) =>  b.count - a.count);
+            socket.emit('priv', { data: sortedGreatRank });
+        });
     });
 };

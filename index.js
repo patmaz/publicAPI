@@ -59,7 +59,7 @@ const streamingUrl = firebase.init();
 //websocket
 const io = require('socket.io')(server);
 publicWs(io, streamingUrl);
-privateWs(io);
+privateWs(io, firebase.streamBeerWords());
 
 //scraping
 getFirstTweetId(config.scrapingTargetUrl);
