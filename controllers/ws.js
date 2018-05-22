@@ -3,6 +3,7 @@ const jwt = require('jwt-simple');
 const User = require('../models/user').UserModelClass;
 
 const saveUser = require('../services/firebaseApi').saveUser;
+const getBeerRank = require('./beer').getBeerRank;
 const secret = require('../config').secret;
 
 exports.public = (io, streamingUrl) => {
@@ -48,38 +49,39 @@ exports.private = (io, streamBeerWords) => {
         });
     });
 
-    privateWs.on('connection', (socket) => {
-        socket.emit('data', { data: [] });
+    privateWs.on('connection', async (socket) => {
+        const data = await getBeerRank(null, null, true);
+        socket.emit('data', { data });
         privateWs.emit('users', { data: _size(io.of('/priv').clients().sockets) });
 
         socket.on('disconnect', () => {
             privateWs.emit('users', { data: _size(io.of('/priv').clients().sockets) });
         });
+    });
 
-        streamBeerWords.on('value', (snapshot) => {
-            const ranks = snapshot.val();
-            const greatRank = [];
+    streamBeerWords.on('value', (snapshot) => {
+        const ranks = snapshot.val();
+        const greatRank = [];
 
-            for (const rank in ranks) {
-                if (ranks.hasOwnProperty(rank)) {
-                    const tmpRank = ranks[rank].rank;
-                    tmpRank.forEach(item => {
-                        const index = greatRank.findIndex(greatItem => greatItem.name === item.name);
+        for (const rank in ranks) {
+            if (ranks.hasOwnProperty(rank)) {
+                const tmpRank = ranks[rank].rank;
+                tmpRank.forEach(item => {
+                    const index = greatRank.findIndex(greatItem => greatItem.name === item.name);
 
-                        if (index > -1) {
-                            greatRank[index].count = greatRank[index].count + item.count;
-                        } else {
-                            greatRank.push({
-                                name: item.name,
-                                count: item.count,
-                            });
-                        }
-                    });
-                }
+                    if (index > -1) {
+                        greatRank[index].count = greatRank[index].count + item.count;
+                    } else {
+                        greatRank.push({
+                            name: item.name,
+                            count: item.count,
+                        });
+                    }
+                });
             }
-            console.log(`emit to ${_size(io.of('/priv').clients().sockets)}`);
-            const sortedGreatRank = greatRank.sort((a, b) =>  b.count - a.count);
-            privateWs.emit('data', { data: sortedGreatRank });
-        });
+        }
+        console.log(`emit to ${_size(io.of('/priv').clients().sockets)}`);
+        const sortedGreatRank = greatRank.sort((a, b) =>  b.count - a.count);
+        privateWs.emit('data', { data: sortedGreatRank });
     });
 };

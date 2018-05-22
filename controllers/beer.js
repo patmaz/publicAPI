@@ -1,7 +1,7 @@
 const getBeerRanks = require('../services/firebaseApi').fetchBeerWords;
 const redis = require('../services/redis');
 
-exports.getBeerRank = async (req, res) => {
+exports.getBeerRank = async (req, res, returnVal) => {
     try {
         const ranks = await getBeerRanks();
         const greatRank = [];
@@ -23,8 +23,14 @@ exports.getBeerRank = async (req, res) => {
                 })
             }
         }
-        console.log('from db + set to cache');
+
         const sortedGreatRank = greatRank.sort((a, b) =>  b.count - a.count);
+
+        if (returnVal) {
+            return sortedGreatRank;
+        }
+
+        console.log('from db + set to cache');
         redis.set(req.route.path, null, sortedGreatRank);
         res.status(200).json(sortedGreatRank);
     } catch (err) {
