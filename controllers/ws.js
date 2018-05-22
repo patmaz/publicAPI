@@ -49,7 +49,12 @@ exports.private = (io, streamBeerWords) => {
     });
 
     privateWs.on('connection', (socket) => {
-        socket.emit('priv', { data: [] });
+        socket.emit('data', { data: [] });
+        privateWs.emit('users', { data: _size(io.of('/priv').clients().sockets) });
+
+        socket.on('disconnect', () => {
+            privateWs.emit('users', { data: _size(io.of('/priv').clients().sockets) });
+        });
 
         streamBeerWords.on('value', (snapshot) => {
             const ranks = snapshot.val();
@@ -72,9 +77,9 @@ exports.private = (io, streamBeerWords) => {
                     });
                 }
             }
-
+            console.log(`emit to ${_size(io.of('/priv').clients().sockets)}`);
             const sortedGreatRank = greatRank.sort((a, b) =>  b.count - a.count);
-            socket.emit('priv', { data: sortedGreatRank });
+            privateWs.emit('data', { data: sortedGreatRank });
         });
     });
 };
