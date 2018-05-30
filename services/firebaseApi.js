@@ -5,10 +5,13 @@ const config = require('../config');
 
 exports.init = () => {
     firebase.initializeApp(config.firebase);
+};
 
-    const streamingUrl = firebase.database().ref('streaming/' + 'url');
-
-    return streamingUrl;
+exports.forWs = () => {
+    return {
+        streamBeerWords: firebase.database().ref('beerWords'),
+        streamingUrl: firebase.database().ref('streaming/' + 'url'),
+    };
 };
 
 exports.saveUrl = (url) => {
@@ -51,10 +54,6 @@ exports.fetchBeerWords = () => {
                 resolve(ranks);
             });
     });
-};
-
-exports.streamBeerWords = () => {
-    return firebase.database().ref('beerWords');
 };
 
 exports.fetchPushSub = (cb) => {

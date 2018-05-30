@@ -1,13 +1,18 @@
 const _size = require('lodash/collection').size;
 const jwt = require('jwt-simple');
-const User = require('../models/user').UserModelClass;
 
+const User = require('../models/user').UserModelClass;
 const saveUser = require('../services/firebaseApi').saveUser;
 const getBeerRankWs = require('./beer').getBeerRankWs;
 const secret = require('../config').secret;
+const firebase = require('../services/firebaseApi');
 
-exports.public = (io, streamingUrl) => {
+exports.websockets = (server) => {
+    const { streamBeerWords, streamingUrl } = firebase.forWs();
+    const io = require('socket.io')(server);
     const publicWs = io.of('/public');
+    const privateWs = io.of('/priv');
+
     publicWs.on('connection', (socket) => {
         saveUser({
             id: socket.id,
@@ -29,10 +34,7 @@ exports.public = (io, streamingUrl) => {
             publicWs.emit('from server', snapshot.val());
         });
     });
-};
 
-exports.private = (io, streamBeerWords) => {
-    const privateWs = io.of('/priv');
     privateWs.use((socket, next) => {
         let token;
         try {

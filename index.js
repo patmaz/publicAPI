@@ -9,10 +9,9 @@ const mongoose = require('mongoose');
 const toobusy = require('toobusy-js');
 const helmet = require('helmet');
 
+const initFirebase = require('./services/firebaseApi').init;
 const router = require('./router');
-const publicWs = require('./controllers/ws').public;
-const privateWs = require('./controllers/ws').private;
-const firebase = require('./services/firebaseApi');
+const websockets = require('./controllers/ws').websockets;
 const getFirstTweetId = require('./services/dataScraping').getFirstTweet;
 const beer = require('./services/dataScraping').beer;
 const config = require('./config');
@@ -35,33 +34,32 @@ app.use((req, res, next) => {
 });
 app.use(morgan('combined'));
 app.use(bodyParser.json({ type: '*/*' }));
-router(app);
 
 //db
-const options = { server: { socketOptions: { keepAlive: 300000, connectTimeoutMS: 30000 } },
-    replset: { socketOptions: { keepAlive: 300000, connectTimeoutMS : 30000 } } };
 
 if (process.env.NODE_ENV === 'docker') {
     mongoose.connect('mongodb://mongo:auth/public-api');
 } else if (process.env.NODE_ENV === 'local') {
     mongoose.connect('mongodb://localhost/public-api');
 } else {
-    mongoose.connect(config.mLabMyApi, options);
+    mongoose.connect(config.mLabMyApi, {
+        useMongoClient: true,
+    });
 }
+
+router(app);
 
 //server
 const port = process.env.PORT || 3090;
 const server = http.createServer(app);
 
 //firebase
-const streamingUrl = firebase.init();
+initFirebase();
 
 //websocket
-const io = require('socket.io')(server);
-publicWs(io, streamingUrl);
-privateWs(io, firebase.streamBeerWords());
+websockets(server);
 
-//scraping
+// //scraping
 getFirstTweetId(config.scrapingTargetUrl);
 setInterval(beer, config.scrapingInterval);
 
