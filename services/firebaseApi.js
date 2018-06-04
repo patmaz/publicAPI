@@ -40,7 +40,7 @@ exports.saveBeerWords = (beerWords) => {
     console.log('######### scraping clear cache');
     redis.set('/beer', null, []);
     firebase.database()
-        .ref('beerWords/' + + Date.now())
+        .ref('beerWords/' + + 0)
         .set(beerWords);
 };
 

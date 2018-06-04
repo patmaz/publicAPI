@@ -62,28 +62,8 @@ exports.websockets = (server) => {
     });
 
     streamBeerWords.on('value', (snapshot) => {
-        const ranks = snapshot.val();
-        const greatRank = [];
-
-        for (const rank in ranks) {
-            if (ranks.hasOwnProperty(rank)) {
-                const tmpRank = ranks[rank].rank;
-                tmpRank.forEach(item => {
-                    const index = greatRank.findIndex(greatItem => greatItem.name === item.name);
-
-                    if (index > -1) {
-                        greatRank[index].count = greatRank[index].count + item.count;
-                    } else {
-                        greatRank.push({
-                            name: item.name,
-                            count: item.count,
-                        });
-                    }
-                });
-            }
-        }
+        const rank = snapshot.val();
         console.log(`emit to ${_size(io.of('/priv').clients().sockets)}`);
-        const sortedGreatRank = greatRank.sort((a, b) =>  b.count - a.count);
-        privateWs.emit('data', { data: sortedGreatRank });
+        privateWs.emit('data', { data: rank[0].rank });
     });
 };

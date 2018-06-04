@@ -10,10 +10,11 @@ const toobusy = require('toobusy-js');
 const helmet = require('helmet');
 
 const initFirebase = require('./services/firebaseApi').init;
+const saveBeerWords = require('./services/firebaseApi').saveBeerWords;
 const router = require('./router');
 const websockets = require('./controllers/ws').websockets;
 const getFirstTweetId = require('./services/dataScraping').getFirstTweet;
-const beer = require('./services/dataScraping').beer;
+const scrape = require('./services/dataScraping').scrape;
 const config = require('./config');
 
 //app
@@ -59,9 +60,11 @@ initFirebase();
 //websocket
 websockets(server);
 
-// //scraping
+//scraping
 getFirstTweetId(config.scrapingTargetUrl);
-setInterval(beer, config.scrapingInterval);
+setInterval(() => {
+    scrape('piwo kraftowe', 1, saveBeerWords);
+}, config.scrapingInterval);
 
 server.listen(port);
 console.log('Server listen on port: ', port);

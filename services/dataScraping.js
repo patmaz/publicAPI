@@ -4,7 +4,6 @@ const q = require('q');
 const cheerio = require('cheerio');
 
 const saveUrl = require('./firebaseApi').saveUrl;
-const saveBeerWords = require('./firebaseApi').saveBeerWords;
 const config = require('../config');
 
 exports.getFirstTweet = (url) => {
@@ -28,17 +27,19 @@ exports.getFirstTweet = (url) => {
     }, config.scrapingInterval);
 };
 
-exports.beer = () => {
+exports.scrape = (phrase, batchSize = 1, cb) => {
+    const searchPhrase = phrase.trim().split(' ').join('+');
+
     const options = {
-        uri: 'https://www.google.pl/search?q=piwo+kraftowe',
+        uri: `https://www.google.pl/search?q=${searchPhrase}`,
         transform: body => {
             return cheerio.load(body);
         },
     };
 
-    console.log('beer scraping ', Date().toString());
+    console.log(`${searchPhrase} scraping`, Date().toString());
     promise(options)
-        .then($ => {
+        .then(async $ => {
             const links = $('.r a');
             const promises = [];
 
@@ -51,7 +52,14 @@ exports.beer = () => {
                 }
             });
 
-            runInBatches(promises, 3);
+            console.log(promises.length);
+            const pages = await runInBatches(promises, batchSize);
+            const wordsRank = countWordsInPages(pages);
+            cb && cb({
+                date: Date().toString(),
+                rank: wordsRank,
+            });
+            return wordsRank;
         })
         .catch(err => {
             console.error('google markup changed');
@@ -59,20 +67,39 @@ exports.beer = () => {
 };
 
 const runInBatches = (promises, batchSize) => {
-    for (let i = 0; i <= promises.length; i = i + batchSize) {
-        const start = i;
-        const end = i + batchSize;
-        q.all(promises.slice(start, end)).then(data => {
-            processData(data);
-        });
-    }
+    return new Promise((resolve, reject) => {
+        const result = [];
+        let resolvedBatchesCounter = 0;
+        for (let i = 0; i < promises.length; i = i + batchSize) {
+            const start = i;
+            const end = i + batchSize;
+            console.log(`START: start ${start} end ${end}`, promises.slice(start, end).length);
+            q.all(promises.slice(start, end)).then(
+                data => {
+                    console.log(`RESOLVED: start ${start} end ${end}`);
+                    data.forEach(i => result.push(i));
+                    resolvedBatchesCounter++;
+                    if (resolvedBatchesCounter === Math.ceil(promises.length / batchSize)) {
+                        resolve(result);
+                    }
+                },
+                err => {
+                    resolvedBatchesCounter++;
+                    console.log(err.status);
+                    if (resolvedBatchesCounter === Math.ceil(promises.length / batchSize)) {
+                        resolve(result);
+                    }
+                }
+            );
+        }
+    });
 };
 
-const processData = (data) => {
+const countWordsInPages = pages => {
     const words = [];
     const ranking = [];
 
-    data.forEach(page => {
+    pages.forEach(page => {
         const $page = cheerio.load(page);
         try {
             $page('body').text()
@@ -98,12 +125,6 @@ const processData = (data) => {
             });
         }
     });
-    console.log('beer scraping ', words.length);
 
-    words.length > 0 &&
-        saveBeerWords({
-            date: Date().toString(),
-            rank: ranking.sort((a, b) =>  b.count - a.count).slice(0, 50),
-        });
-    console.log('beer scraping END' + Date().toString());
+    return ranking.sort((a, b) =>  b.count - a.count);
 };
