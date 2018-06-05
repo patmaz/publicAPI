@@ -28,42 +28,45 @@ exports.getFirstTweet = (url) => {
 };
 
 exports.scrape = (phrase, batchSize = 1, cb) => {
-    const searchPhrase = phrase.trim().split(' ').join('+');
+    return new Promise((resolve, reject) => {
+        const searchPhrase = phrase.trim().split(' ').join('+');
 
-    const options = {
-        uri: `https://www.google.pl/search?q=${searchPhrase}`,
-        transform: body => {
-            return cheerio.load(body);
-        },
-    };
+        const options = {
+            uri: `https://www.google.pl/search?q=${searchPhrase}`,
+            transform: body => {
+                return cheerio.load(body);
+            },
+        };
 
-    console.log(`${searchPhrase} scraping`, Date().toString());
-    promise(options)
-        .then(async $ => {
-            const links = $('.r a');
-            const promises = [];
+        console.log(`${searchPhrase} scraping`, Date().toString());
+        promise(options)
+            .then(async $ => {
+                const links = $('.r a');
+                const promises = [];
 
-            links.each((index, link) => {
-                const nakedLink = $(link).attr('href').replace('/url?q=', '').split('&')[0];
-                if (nakedLink.indexOf('http') === 0) {
-                    promises.push(
-                        promise(nakedLink)
-                    );
-                }
+                links.each((index, link) => {
+                    const nakedLink = $(link).attr('href').replace('/url?q=', '').split('&')[0];
+                    if (nakedLink.indexOf('http') === 0) {
+                        promises.push(
+                            promise(nakedLink)
+                        );
+                    }
+                });
+
+                console.log(promises.length);
+                const pages = await runInBatches(promises, batchSize);
+                const wordsRank = countWordsInPages(pages).slice(0, 1000);
+                cb && cb({
+                    date: Date().toString(),
+                    rank: wordsRank,
+                });
+                resolve(wordsRank);
+            })
+            .catch(err => {
+                console.error('google markup changed');
+                reject(err);
             });
-
-            console.log(promises.length);
-            const pages = await runInBatches(promises, batchSize);
-            const wordsRank = countWordsInPages(pages);
-            cb && cb({
-                date: Date().toString(),
-                rank: wordsRank,
-            });
-            return wordsRank;
-        })
-        .catch(err => {
-            console.error('google markup changed');
-        });
+    });
 };
 
 const runInBatches = (promises, batchSize) => {
@@ -107,8 +110,6 @@ const countWordsInPages = pages => {
                 .split(' ')
                 .filter(word => word.length > 0)
                 .forEach(word => words.push(word.toLowerCase()));
-
-            console.log(words.length);
         } catch(err) {
             console.error('markup problem on specific page');
         }

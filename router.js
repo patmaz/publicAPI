@@ -7,6 +7,7 @@ const Users = require('./controllers/users');
 const Items = require('./controllers/items');
 const push = require('./controllers/push').push;
 const savePushSub = require('./controllers/push').savePushSub;
+const Scrape = require('./controllers/scrape');
 const Beer = require('./controllers/beer');
 const passportService = require('./services/passport');
 const passport = require('passport');
@@ -43,4 +44,6 @@ module.exports = function(app) {
     app.post('/push/sub', savePushSub);
 
     app.get('/beer', redis.checkCache, Beer.getBeerRank);
+
+    app.post('/scrape', Scrape.scrape);
 };
