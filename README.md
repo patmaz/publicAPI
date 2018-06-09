@@ -9,5 +9,6 @@
 - firebase integration
 - data scraping functionality
 - web push notifications
+- graphQL layer
 
 +++ docker configuration +++
