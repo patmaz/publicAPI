@@ -54,10 +54,7 @@ if (process.env.NODE_ENV === 'docker') {
 router(app);
 
 //graphql
-const haltOnTimedout = (req, res, next) => {
-    if (!req.timedout) next();
-};
-app.use('/graphql', timeout(1000*60*2), haltOnTimedout, express_graphql({
+app.use('/graphql', express_graphql({
     schema: graphQl.schema,
     rootValue: graphQl.root,
     graphiql: true,
@@ -74,10 +71,10 @@ initFirebase();
 websockets(server);
 
 //scraping
-// getFirstTweetId(config.scrapingTargetUrl);
-// setInterval(() => {
-//     scrape('piwo kraftowe', 1, saveBeerWords);
-// }, config.scrapingInterval);
+getFirstTweetId(config.scrapingTargetUrl);
+setInterval(() => {
+    scrape('piwo kraftowe', 1, saveBeerWords);
+}, config.scrapingInterval);
 
 server.listen(port);
 console.log('Server listen on port: ', port);

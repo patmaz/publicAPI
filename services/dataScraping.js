@@ -73,6 +73,12 @@ const runInBatches = (promises, batchSize) => {
     return new Promise((resolve, reject) => {
         const result = [];
         let resolvedBatchesCounter = 0;
+
+        setTimeout(() => {
+            console.log('resolved prematurely');
+            resolve(result);
+        }, 1000*30);
+
         for (let i = 0; i < promises.length; i = i + batchSize) {
             const start = i;
             const end = i + batchSize;
@@ -88,7 +94,7 @@ const runInBatches = (promises, batchSize) => {
                 },
                 err => {
                     resolvedBatchesCounter++;
-                    console.log(err);
+                    console.log(`ERROR for start ${start} end ${end}`, err.status);
                     if (resolvedBatchesCounter === Math.ceil(promises.length / batchSize)) {
                         resolve(result);
                     }

@@ -15,7 +15,7 @@ exports.scrape = async (req, res) => {
         res.status(409).json({ data: 'concurrency error' });
         return;
     }
-    if (Date.now() - lastScraping < 1000*60) {
+    if (Date.now() - lastScraping < 1000*15) {
         res.status(500).json({ data: 'retry later' });
         return;
     }
