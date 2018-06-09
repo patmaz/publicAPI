@@ -7,9 +7,11 @@ exports.scrape = async (req, res) => {
     const { phrase } = req.body;
     if (!phrase) {
         res.status(422).json({ data: 'no "phrase" field' });
+        return;
     }
     if (isScraping === true) {
         res.status(409).json({ data: 'concurrency error' });
+        return;
     }
     if (Date.now() - lastScraping < 1000*60) {
         res.status(500).json({ data: 'retry later' });

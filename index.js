@@ -8,7 +8,9 @@ const morgan = require('morgan');
 const mongoose = require('mongoose');
 const toobusy = require('toobusy-js');
 const helmet = require('helmet');
+const express_graphql = require('express-graphql');
 
+const graphQl = require('./graphql');
 const initFirebase = require('./services/firebaseApi').init;
 const saveBeerWords = require('./services/firebaseApi').saveBeerWords;
 const router = require('./router');
@@ -50,6 +52,13 @@ if (process.env.NODE_ENV === 'docker') {
 
 router(app);
 
+//graphql
+app.use('/graphql', express_graphql({
+    schema: graphQl.schema,
+    rootValue: graphQl.root,
+    graphiql: true,
+}));
+
 //server
 const port = process.env.PORT || 3090;
 const server = http.createServer(app);
@@ -61,10 +70,10 @@ initFirebase();
 websockets(server);
 
 //scraping
-getFirstTweetId(config.scrapingTargetUrl);
-setInterval(() => {
-    scrape('piwo kraftowe', 1, saveBeerWords);
-}, config.scrapingInterval);
+// getFirstTweetId(config.scrapingTargetUrl);
+// setInterval(() => {
+//     scrape('piwo kraftowe', 1, saveBeerWords);
+// }, config.scrapingInterval);
 
 server.listen(port);
 console.log('Server listen on port: ', port);
