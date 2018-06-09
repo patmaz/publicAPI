@@ -9,6 +9,7 @@ const mongoose = require('mongoose');
 const toobusy = require('toobusy-js');
 const helmet = require('helmet');
 const express_graphql = require('express-graphql');
+const timeout = require('connect-timeout')
 
 const graphQl = require('./graphql');
 const initFirebase = require('./services/firebaseApi').init;
@@ -53,7 +54,10 @@ if (process.env.NODE_ENV === 'docker') {
 router(app);
 
 //graphql
-app.use('/graphql', express_graphql({
+const haltOnTimedout = (req, res, next) => {
+    if (!req.timedout) next();
+};
+app.use('/graphql', timeout(1000*60*2), haltOnTimedout, express_graphql({
     schema: graphQl.schema,
     rootValue: graphQl.root,
     graphiql: true,

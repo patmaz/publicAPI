@@ -88,7 +88,7 @@ const runInBatches = (promises, batchSize) => {
                 },
                 err => {
                     resolvedBatchesCounter++;
-                    console.log(err.status);
+                    console.log(err);
                     if (resolvedBatchesCounter === Math.ceil(promises.length / batchSize)) {
                         resolve(result);
                     }

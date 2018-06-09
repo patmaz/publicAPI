@@ -4,6 +4,8 @@ let isScraping = false;
 let lastScraping = Date.now();
 
 exports.scrape = async (req, res) => {
+    req.setTimeout(0);
+
     const { phrase } = req.body;
     if (!phrase) {
         res.status(422).json({ data: 'no "phrase" field' });
