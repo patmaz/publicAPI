@@ -6,6 +6,22 @@ const cheerio = require('cheerio');
 const saveUrl = require('./firebaseApi').saveUrl;
 const config = require('../config');
 
+let filterWords = [];
+const getWordsFilter = async () => {
+    try {
+        const result = await promise({
+            uri: `https://us-central1-${config.firebase.projectId}.cloudfunctions.net/filterWords`,
+            method: 'POST',
+            json: true,
+        });
+        filterWords = Object.values(result.data);
+        console.log('filter words:', filterWords);
+    } catch(err) {
+        console.error('google functions error');
+    }
+};
+getWordsFilter();
+
 exports.getFirstTweet = (url) => {
     let counter = 0;
     setInterval(() => {
@@ -112,9 +128,12 @@ const countWordsInPages = pages => {
         const $page = cheerio.load(page);
         try {
             $page('body').text()
+                .replace(/[\W_]+/g, ' ')
                 .replace(/\s+/g, ' ')
                 .split(' ')
-                .filter(word => word.length > 0)
+                .filter(word => word.indexOf('http') === -1)
+                .filter(word => word.length > 1)
+                .filter(word => !filterWords.includes(word.toLowerCase()))
                 .forEach(word => words.push(word.toLowerCase()));
         } catch(err) {
             console.error('markup problem on specific page');
