@@ -9,7 +9,6 @@ const mongoose = require('mongoose');
 const toobusy = require('toobusy-js');
 const helmet = require('helmet');
 const express_graphql = require('express-graphql');
-const timeout = require('connect-timeout')
 
 const graphQl = require('./graphql');
 const initFirebase = require('./services/firebaseApi').init;
@@ -56,7 +55,6 @@ router(app);
 //graphql
 app.use('/graphql', express_graphql({
     schema: graphQl.schema,
-    rootValue: graphQl.root,
     graphiql: true,
 }));
 
@@ -71,7 +69,7 @@ initFirebase();
 websockets(server);
 
 //scraping
-getFirstTweetId(config.scrapingTargetUrl);
+// getFirstTweetId(config.scrapingTargetUrl);
 setInterval(() => {
     scrape('piwo kraftowe', 1, saveBeerWords);
 }, config.scrapingInterval);

@@ -21,6 +21,7 @@ const getWordsFilter = async () => {
     }
 };
 getWordsFilter();
+setInterval(getWordsFilter, 1000*60*10)
 
 exports.getFirstTweet = (url) => {
     let counter = 0;

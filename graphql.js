@@ -1,8 +1,8 @@
-const { buildSchema } = require('graphql');
+const { makeExecutableSchema } = require('graphql-tools');
 
 const scrape = require('./services/dataScraping').scrape;
 
-const schema = buildSchema(`
+const typeDefs = `
     type Query {
         scrape(phrase: String): Rank
     },
@@ -13,21 +13,27 @@ const schema = buildSchema(`
     type Rank {
         date: String
         words: [Words]
-    },
-`);
+    }, 
+`;
 
-const root = {
-    scrape: async (args) => {
-        try {
-            const result = await scrape(args.phrase);
-            return { date: Date.now(), words: result }
-        } catch(err) {
-            console.error(err);
-        }
-    },
+const resolvers = {
+    Query: {
+        scrape: async (_, args) => {
+            try {
+                const result = await scrape(args.phrase);
+                return { date: Date.now(), words: result }
+            } catch(err) {
+                console.error(err);
+            }
+        },
+    }
 };
+
+const schema = makeExecutableSchema({
+    typeDefs,
+    resolvers,
+});
 
 module.exports = {
     schema,
-    root,
 };
