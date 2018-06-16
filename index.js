@@ -8,7 +8,9 @@ const morgan = require('morgan');
 const mongoose = require('mongoose');
 const toobusy = require('toobusy-js');
 const helmet = require('helmet');
-const express_graphql = require('express-graphql');
+const { execute, subscribe } =  require('graphql');
+const { graphqlExpress, graphiqlExpress } = require('apollo-server-express');
+const { SubscriptionServer } = require('subscriptions-transport-ws');
 
 const graphQl = require('./graphql');
 const initFirebase = require('./services/firebaseApi').init;
@@ -52,14 +54,8 @@ if (process.env.NODE_ENV === 'docker') {
 
 router(app);
 
-//graphql
-app.use('/graphql', express_graphql({
-    schema: graphQl.schema,
-    graphiql: true,
-}));
-
 //server
-const port = process.env.PORT || 3090;
+const PORT = process.env.PORT || 3090;
 const server = http.createServer(app);
 
 //firebase
@@ -71,8 +67,30 @@ websockets(server);
 //scraping
 // getFirstTweetId(config.scrapingTargetUrl);
 setInterval(() => {
-    scrape('piwo kraftowe', 1, saveBeerWords);
+    scrape('craft beer', 1, saveBeerWords);
 }, config.scrapingInterval);
 
-server.listen(port);
-console.log('Server listen on port: ', port);
+server.listen(PORT);
+
+//graphql
+SubscriptionServer.create(
+    {
+        schema: graphQl.schema,
+        execute,
+        subscribe,
+    },
+    {
+        server: server,
+        path: '/graphqlsubs',
+    },
+)
+app.use('/graphql', graphqlExpress({
+    schema: graphQl.schema,
+}));
+app.get('/graphiql', graphiqlExpress({
+    endpointURL: '/graphql',
+    subscriptionsEndpoint: `ws://api.codebooyah.com/graphqlsubs`
+}));
+graphQl.listenForNewRank();
+
+console.log('API listen on port: ', PORT);
