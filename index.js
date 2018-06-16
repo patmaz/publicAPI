@@ -89,7 +89,7 @@ app.use('/graphql', graphqlExpress({
 }));
 app.get('/graphiql', graphiqlExpress({
     endpointURL: '/graphql',
-    subscriptionsEndpoint: `ws://api.codebooyah.com/graphqlsubs`
+    subscriptionsEndpoint: `wss://api.codebooyah.com/graphqlsubs`
 }));
 graphQl.listenForNewRank();
 
