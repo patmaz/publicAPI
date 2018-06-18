@@ -1,10 +1,36 @@
+global.XMLHttpRequest = require('xhr2');
 const firebase = require('firebase');
+require('firebase/storage');
+let storage;
+let storageRef;
 const redis = require('../services/redis');
 
 const config = require('../config');
 
 exports.init = () => {
-    firebase.initializeApp(config.firebase);
+    const app = firebase.initializeApp(config.firebase);
+    storage = firebase.storage(app);
+    storageRef = storage.ref();
+};
+
+exports.saveImg = base64 => {
+    return new Promise((resolve, reject) => {
+        const base64Data = base64.replace(/^data:image\/png;base64,/, '');
+        const file = Buffer.from(base64Data, 'base64');
+        const imagesRef = storageRef.child(`${Date.now()}images.png`);
+
+        if (file.length > 1000*1000) {
+            reject();
+        }
+
+        imagesRef.put(file, {
+            contentType: 'image/png',
+        }).then(
+            snapshot => {
+                resolve();
+            }
+        );
+    });
 };
 
 exports.forWs = () => {

@@ -6,6 +6,7 @@ const Lorem = require('./controllers/lorem');
 const Users = require('./controllers/users');
 const Items = require('./controllers/items');
 const push = require('./controllers/push').push;
+const Upload = require('./controllers/upload');
 const savePushSub = require('./controllers/push').savePushSub;
 const Scrape = require('./controllers/scrape');
 const Beer = require('./controllers/beer');
@@ -46,4 +47,6 @@ module.exports = function(app) {
     app.get('/beer', redis.checkCache, Beer.getBeerRank);
 
     app.post('/scrape', Scrape.scrape);
+
+    app.post('/upload', Upload.upload);
 };

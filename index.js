@@ -38,7 +38,7 @@ app.use((req, res, next) => {
     next();
 });
 app.use(morgan('combined'));
-app.use(bodyParser.json({ type: '*/*' }));
+app.use(bodyParser.json({ type: '*/*', limit: '10000kb' }));
 
 //db
 
