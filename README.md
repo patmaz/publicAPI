@@ -1,4 +1,6 @@
-## API with JWT + websockets + data scraping realtime app ##
+## API in node.js ##
+
+a hobby API with various features:
 
 - helmet and overload protection
 - CORS
@@ -10,5 +12,6 @@
 - data scraping functionality
 - web push notifications
 - graphQL layer
+- video streaming endpoint
 
 +++ docker configuration +++

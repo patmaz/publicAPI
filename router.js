@@ -12,6 +12,7 @@ const Scrape = require('./controllers/scrape');
 const Beer = require('./controllers/beer');
 const passportService = require('./services/passport');
 const passport = require('passport');
+const Video = require('./controllers/video');
 
 const requireToken = passport.authenticate('jwtApi', { session: false });
 const requireSignIn = passport.authenticate('local', { session: false });
@@ -49,4 +50,6 @@ module.exports = function(app) {
     app.post('/scrape', Scrape.scrape);
 
     app.post('/upload', Upload.upload);
+
+    app.get('/video/:name', Video.stream);
 };
