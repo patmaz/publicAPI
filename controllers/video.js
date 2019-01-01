@@ -1,7 +1,8 @@
 const fs = require('fs');
+const path = require('path');
 
 exports.stream = function (req, res) {
-    const filePath = `./assets/${req.params.name}`;
+    const filePath = path.resolve(process.cwd() + '/assets', req.params.name);
     if (!fs.existsSync(filePath)) {
         return res.status(404).json({ data: 'OMFG file not found' });
     }
