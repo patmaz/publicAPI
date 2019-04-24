@@ -7,7 +7,9 @@ const bcrypt = require('bcrypt-nodejs');
 
 //user model
 const itemSchema = new Schema({
-    name: {type: String, required: true}
+    name: {type: String, required: true},
+}, {
+    usePushEach: true,
 });
 
 const userSchema = new Schema({
@@ -17,6 +19,8 @@ const userSchema = new Schema({
     name: { type: String },
     lname: { type: String },
     items: [ itemSchema ],
+}, {
+    usePushEach: true,
 });
 
 //pre-saving hook
@@ -40,4 +44,3 @@ module.exports = {
     UserModelClass: UserModelClass,
     ItemModelClass: ItemModelClass,
 };
-
