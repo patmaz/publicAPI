@@ -15,7 +15,6 @@ const getWordsFilter = async () => {
             json: true,
         });
         filterWords = Object.values(result.data);
-        console.log('filter words:', filterWords);
     } catch(err) {
         console.error('google functions error');
     }
