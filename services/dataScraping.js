@@ -48,7 +48,7 @@ exports.scrape = (phrase, batchSize = 1, cb) => {
         const searchPhrase = phrase.trim().split(' ').join('+');
 
         const options = {
-            uri: `https://www.google.pl/search?q=${searchPhrase}`,
+            uri: `https://www.google.com/search?q=${searchPhrase}`,
             transform: body => {
                 return cheerio.load(body);
             },
@@ -57,7 +57,7 @@ exports.scrape = (phrase, batchSize = 1, cb) => {
         console.log(`${searchPhrase} scraping`, Date().toString());
         promise(options)
             .then(async $ => {
-                const links = $('.r a');
+                const links = $('a[href^="/url?q="]');
                 const promises = [];
 
                 links.each((index, link) => {
