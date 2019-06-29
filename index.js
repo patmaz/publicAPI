@@ -21,6 +21,9 @@ const getFirstTweetId = require('./services/dataScraping').getFirstTweet;
 const scrape = require('./services/dataScraping').scrape;
 const config = require('./config');
 
+process.setMaxListeners(0);
+
+
 //app
 const app = express();
 app.use(function(req, res, next) {

@@ -2,6 +2,7 @@ const request = require('request');
 const promise = require('request-promise');
 const q = require('q');
 const cheerio = require('cheerio');
+const puppeteer = require('puppeteer');
 
 const saveUrl = require('./firebaseApi').saveUrl;
 const config = require('../config');
@@ -153,4 +154,88 @@ const countWordsInPages = pages => {
     });
 
     return ranking.sort((a, b) =>  b.count - a.count);
+};
+
+const getContentWithPuppeteer = async href => {
+    const browser = await puppeteer.launch({ headless: true });
+    try {
+        const page = await browser.newPage();
+        await page.setViewport({ width: 1920, height: 926 });
+        await page.goto(href);
+        await page.waitForSelector('body');
+        const body = await page.$eval('body', element => {
+            return element.innerText;
+        });
+        browser.close();
+        return body;
+    } catch (e) {
+        console.error(e);
+        browser.close();
+        return null;
+    }
+};
+
+exports.scrapeWithPuppeteer = async (phrase) => {
+    const words = [];
+    const browser = await puppeteer.launch({ headless: true });
+    return new Promise(async (resolve, reject) => {
+        try {
+            const page = await browser.newPage();
+            await page.setViewport({ width: 1920, height: 926 });
+            await page.goto(`http://www.google.com/search?q=${phrase}`);
+            await page.waitForSelector('.r a');
+            let hrefs = await page.$$eval('.r a', aTags =>
+                aTags.map(a => {
+                    let href = a.getAttribute('href').split('http')[1];
+                    if (href) {
+                        return `http${href}`;
+                    }
+                }),
+            );
+            hrefs = hrefs.filter(Boolean);
+            Promise.all(
+                hrefs.map(async href => {
+                    console.log(href)
+                    const content = await getContentWithPuppeteer(href);
+                    content &&
+                    content
+                        .replace(/[\W_]+/g, ' ')
+                        .replace(/\s+/g, ' ')
+                        .split(' ')
+                        .filter(word => word.indexOf('http') === -1)
+                        .filter(word => word.length > 1)
+                        .filter(word => !filterWords.includes(word.toLowerCase()))
+                        .forEach(word => words.push(word.toLowerCase()));
+                }),
+            ).then(
+                () => {
+                    const ranking = [];
+                    words.forEach(word => {
+                        const index = ranking.findIndex(item => item.name === word);
+                        if (index > -1) {
+                            ranking[index].count++;
+                        } else {
+                            ranking.push({
+                                name: word,
+                                count: 1,
+                            });
+                        }
+                    });
+
+                    ranking.sort((a, b) =>  b.count - a.count);
+                    browser.close();
+                    resolve(ranking);
+                },
+                e => {
+                    console.error(e);
+                    browser.close();
+                    reject(null)
+                }
+            );
+        } catch (e) {
+            console.error(e);
+            browser.close();
+            reject(null)
+        }
+    })
 };

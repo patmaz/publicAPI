@@ -50,6 +50,8 @@ module.exports = function(app) {
 
     app.post('/scrape', Scrape.scrape);
 
+    app.post('/scrape2', Scrape.scrapeWithPuppeteer);
+
     app.post('/upload', Upload.upload);
 
     app.get('/video/:name', Video.stream);
