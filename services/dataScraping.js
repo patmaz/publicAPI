@@ -157,7 +157,7 @@ const countWordsInPages = pages => {
 };
 
 const getContentWithPuppeteer = async href => {
-    const browser = await puppeteer.launch({ headless: true });
+    const browser = await puppeteer.launch({ headless: true, executablePath: '/usr/bin/chromium-browser' });
     try {
         const page = await browser.newPage();
         await page.setViewport({ width: 1920, height: 926 });
@@ -177,7 +177,7 @@ const getContentWithPuppeteer = async href => {
 
 exports.scrapeWithPuppeteer = async (phrase) => {
     const words = [];
-    const browser = await puppeteer.launch({ headless: true });
+    const browser = await puppeteer.launch({ headless: true, executablePath: '/usr/bin/chromium-browser' });
     return new Promise(async (resolve, reject) => {
         try {
             const page = await browser.newPage();
