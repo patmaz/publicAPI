@@ -40,22 +40,15 @@ exports.scrapeWithPuppeteer = async (req, res) => {
         res.status(422).json({ data: 'no "phrase" field' });
         return;
     }
-    if (isScraping === true) {
-        res.status(409).json({ data: 'concurrency error' });
-        return;
-    }
     if (Date.now() - lastScraping < 1000*15) {
         res.status(500).json({ data: 'retry later' });
         return;
     }
     try {
         lastScraping = Date.now();
-        isScraping = true;
         const result = await scrapeWithPuppeteer(phrase);
-        isScraping = false;
         res.status(200).json({ data: result });
     } catch(err) {
-        isScraping = false;
         console.error(err.message);
         res.status(500).json({ data: 'OMFG error', error: err.message });
     }
