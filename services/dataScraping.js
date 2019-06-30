@@ -172,29 +172,33 @@ const countWordsInPages = pages => {
 };
 
 const getContentWithPuppeteer = async href => {
+  console.log('scrape with puppeteer', href);
   const browser = await puppeteer.launch({
     headless: true,
     executablePath: '/usr/bin/chromium-browser',
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
   });
-  try {
-    const page = await browser.newPage();
-    await page.setViewport({ width: 1920, height: 926 });
-    await page.goto(href);
-    await page.waitForSelector('body');
-    const body = await page.$eval('body', element => {
-      return element.innerText;
-    });
-    browser.close();
-    return body;
-  } catch (e) {
-    console.error(e);
-    browser.close();
-    return null;
-  }
+  return new Promise(async (resolve, reject) => {
+    try {
+      const page = await browser.newPage();
+      await page.setViewport({ width: 1920, height: 926 });
+      await page.goto(href);
+      await page.waitForSelector('body');
+      const body = await page.$eval('body', element => {
+        return element.innerText;
+      });
+      browser.close();
+      resolve(body);
+    } catch (e) {
+      console.error(e);
+      browser.close();
+      reject(null);
+    }
+  })
 };
 
-exports.scrapeWithPuppeteer = async phrase => {
+exports.scrapeWithPuppeteer = async (phrase, parallel = false) => {
+  console.log('scrapeWithPuppeteer', phrase);
   const words = [];
   const browser = await puppeteer.launch({
     headless: true,
@@ -216,45 +220,79 @@ exports.scrapeWithPuppeteer = async phrase => {
         }),
       );
       hrefs = hrefs.filter(Boolean);
-      Promise.all(
-        hrefs.map(async href => {
-          console.log(href);
-          const content = await getContentWithPuppeteer(href);
-          content &&
-            content
-              .replace(/[\W_]+/g, ' ')
-              .replace(/\s+/g, ' ')
-              .split(' ')
-              .filter(word => word.indexOf('http') === -1)
-              .filter(word => word.length > 1)
-              .filter(word => !filterWords.includes(word.toLowerCase()))
-              .forEach(word => words.push(word.toLowerCase()));
-        }),
-      ).then(
-        () => {
-          const ranking = [];
-          words.forEach(word => {
-            const index = ranking.findIndex(item => item.name === word);
-            if (index > -1) {
-              ranking[index].count++;
-            } else {
-              ranking.push({
-                name: word,
-                count: 1,
-              });
-            }
-          });
+      if (parallel) {
+        Promise.all(
+          hrefs.map(async href => {
+            const content = await getContentWithPuppeteer(href);
+            content &&
+              content
+                .replace(/[\W_]+/g, ' ')
+                .replace(/\s+/g, ' ')
+                .split(' ')
+                .filter(word => word.indexOf('http') === -1)
+                .filter(word => word.length > 1)
+                .filter(word => !filterWords.includes(word.toLowerCase()))
+                .forEach(word => words.push(word.toLowerCase()));
+          }),
+        ).then(
+          () => {
+            const ranking = [];
+            words.forEach(word => {
+              const index = ranking.findIndex(item => item.name === word);
+              if (index > -1) {
+                ranking[index].count++;
+              } else {
+                ranking.push({
+                  name: word,
+                  count: 1,
+                });
+              }
+            });
 
-          ranking.sort((a, b) => b.count - a.count);
-          browser.close();
-          resolve(ranking);
-        },
-        e => {
-          console.error(e);
-          browser.close();
-          reject(null);
-        },
-      );
+            ranking.sort((a, b) => b.count - a.count);
+            browser.close();
+            resolve(ranking);
+          },
+          e => {
+            console.error(e);
+            browser.close();
+            reject(null);
+          },
+        );
+      }
+
+      if (!parallel) {
+        // TODO DRY
+        const jobs = hrefs.map( href => () =>  getContentWithPuppeteer(href));
+        for (const job of jobs) {
+          const content = await job();
+          content &&
+          content
+            .replace(/[\W_]+/g, ' ')
+            .replace(/\s+/g, ' ')
+            .split(' ')
+            .filter(word => word.indexOf('http') === -1)
+            .filter(word => word.length > 1)
+            .filter(word => !filterWords.includes(word.toLowerCase()))
+            .forEach(word => words.push(word.toLowerCase()));
+        }
+        const ranking = [];
+        words.forEach(word => {
+          const index = ranking.findIndex(item => item.name === word);
+          if (index > -1) {
+            ranking[index].count++;
+          } else {
+            ranking.push({
+              name: word,
+              count: 1,
+            });
+          }
+        });
+
+        ranking.sort((a, b) => b.count - a.count);
+        browser.close();
+        resolve(ranking);
+      }
     } catch (e) {
       console.error(e);
       browser.close();
