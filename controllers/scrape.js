@@ -27,6 +27,7 @@ exports.scrape = async (req, res) => {
         isScraping = false;
         res.status(200).json({ data: result });
     } catch(err) {
+        isScraping = false;
         res.status(500).json({ data: 'OMFG error' });
     }
 };
@@ -54,6 +55,7 @@ exports.scrapeWithPuppeteer = async (req, res) => {
         isScraping = false;
         res.status(200).json({ data: result });
     } catch(err) {
+        isScraping = false;
         res.status(500).json({ data: 'OMFG error' });
     }
 };
