@@ -47,5 +47,14 @@
     "web-push": "^3.2.2",
     "xhr2": "^0.1.4"
   },
-  "repository": {}
+  "repository": {},
+  "devDependencies": {
+    "husky": "^3.0.0",
+    "pretty-quick": "^1.11.1"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
+    }
+  }
 }
