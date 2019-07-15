@@ -3,6 +3,7 @@
  */
 const Auth = require('./controllers/auth');
 const Lorem = require('./controllers/lorem');
+const Ping = require('./controllers/ping');
 const Users = require('./controllers/users');
 const Items = require('./controllers/items');
 const push = require('./controllers/push').push;
@@ -21,9 +22,7 @@ const requireSignIn = passport.authenticate('local', { session: false });
 const redis = require('./services/redis');
 
 module.exports = function(app) {
-  app.get('/ping', (req, res) => {
-    res.json({ data: 'pong' });
-  });
+  app.get('/ping', Ping.ping);
 
   app.get('/lorem/:number', Lorem.lorem);
 
