@@ -21,40 +21,43 @@ const requireSignIn = passport.authenticate('local', { session: false });
 const redis = require('./services/redis');
 
 module.exports = function(app) {
+  app.get('/ping', (req, res) => {
+    res.json({ data: 'pong' });
+  });
 
-    app.get('/lorem/:number', Lorem.lorem);
+  app.get('/lorem/:number', Lorem.lorem);
 
-    app.post('/v1/signup', Auth.signup);
+  app.post('/v1/signup', Auth.signup);
 
-    app.post('/v1/signin', requireSignIn, Auth.signin);
+  app.post('/v1/signin', requireSignIn, Auth.signin);
 
-    app.get('/v1/users', requireToken, Users.getAllUsers);
+  app.get('/v1/users', requireToken, Users.getAllUsers);
 
-    app.get('/v1/user', requireToken, Users.getUser);
+  app.get('/v1/user', requireToken, Users.getUser);
 
-    app.put('/v1/user', requireToken, Users.updateUser);
+  app.put('/v1/user', requireToken, Users.updateUser);
 
-    app.get('/v1/items', requireToken, Items.getItems);
+  app.get('/v1/items', requireToken, Items.getItems);
 
-    app.post('/v1/items', requireToken, Items.addItem);
+  app.post('/v1/items', requireToken, Items.addItem);
 
-    app.put('/v1/items/:id', requireToken, Items.updateItem);
+  app.put('/v1/items/:id', requireToken, Items.updateItem);
 
-    app.delete('/v1/items/:id', requireToken, Items.deleteItem);
+  app.delete('/v1/items/:id', requireToken, Items.deleteItem);
 
-    //app.get('/push', push);
+  //app.get('/push', push);
 
-    app.post('/push/sub', savePushSub);
+  app.post('/push/sub', savePushSub);
 
-    app.get('/beer', redis.checkCache, Beer.getBeerRank);
+  app.get('/beer', redis.checkCache, Beer.getBeerRank);
 
-    app.post('/scrape', Scrape.scrape);
+  app.post('/scrape', Scrape.scrape);
 
-    app.post('/scrape2', Scrape.scrapeWithPuppeteer);
+  app.post('/scrape2', Scrape.scrapeWithPuppeteer);
 
-    app.post('/upload', Upload.upload);
+  app.post('/upload', Upload.upload);
 
-    app.get('/video/:name', Video.stream);
+  app.get('/video/:name', Video.stream);
 
-    app.get('/audio/:name', Audio.stream);
+  app.get('/audio/:name', Audio.stream);
 };
