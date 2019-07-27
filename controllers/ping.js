@@ -14,10 +14,17 @@ exports.ping = async (req, res) => {
       chat: chat.data,
     })));
 
+    const uptimeInMs = process.uptime() * 1000;
+
     res.json({
       codebooyahAPI: 'pong',
       ...results,
-      uptime: moment.utc(process.uptime()*1000).format('HH:mm:ss'),
+      uptime: `${moment.duration(uptimeInMs).days()} : ${moment
+        .duration(uptimeInMs)
+        .hours()} : ${moment
+        .duration(uptimeInMs)
+        .minutes()} : ${moment.duration(uptimeInMs).seconds()}`,
+      serverTime: moment().format(),
       memo: process.memoryUsage().rss,
       platform: process.platform,
     });
