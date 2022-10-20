@@ -2078,13 +2078,6 @@ moment@^2.22.2:
   version "2.24.0"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.24.0.tgz#0d055d53f5052aa653c9f6eb68bb5d12bf5c2b5b"
 
-mongodb-core@2.1.14:
-  version "2.1.14"
-  resolved "https://registry.yarnpkg.com/mongodb-core/-/mongodb-core-2.1.14.tgz#13cba2764226b5be3d18992af0c963ce5ea0f0fd"
-  dependencies:
-    bson "~1.0.4"
-    require_optional "~1.0.0"
-
 mongodb-core@2.1.18:
   version "2.1.18"
   resolved "https://registry.yarnpkg.com/mongodb-core/-/mongodb-core-2.1.18.tgz#4c46139bdf3a1f032ded91db49f38eec01659050"
@@ -2092,7 +2085,7 @@ mongodb-core@2.1.18:
     bson "~1.0.4"
     require_optional "~1.0.0"
 
-mongodb@2.2.34:
+mongodb@2.2.34, mongodb@^2.2.9:
   version "2.2.34"
   resolved "https://registry.yarnpkg.com/mongodb/-/mongodb-2.2.34.tgz#a34f59bbeb61754aec432de72c3fe21526a44c1a"
   dependencies:
@@ -2100,17 +2093,9 @@ mongodb@2.2.34:
     mongodb-core "2.1.18"
     readable-stream "2.2.7"
 
-mongodb@^2.2.9:
-  version "2.2.30"
-  resolved "https://registry.yarnpkg.com/mongodb/-/mongodb-2.2.30.tgz#8ccd801f676c8172040c2f2b47e9602a0d5634ab"
-  dependencies:
-    es6-promise "3.2.1"
-    mongodb-core "2.1.14"
-    readable-stream "2.2.7"
-
 mongoose@^4.13.14:
-  version "4.13.18"
-  resolved "https://registry.yarnpkg.com/mongoose/-/mongoose-4.13.18.tgz#1c173de315a11e207ff59461da0fa2103b895528"
+  version "4.13.21"
+  resolved "https://registry.yarnpkg.com/mongoose/-/mongoose-4.13.21.tgz#83f4a8461b19aca1b2274feaaaf262b71b6f034d"
   dependencies:
     async "2.6.0"
     bson "~1.0.4"
@@ -2161,11 +2146,11 @@ ms@0.7.2:
   version "0.7.2"
   resolved "https://registry.yarnpkg.com/ms/-/ms-0.7.2.tgz#ae25cf2512b3885a1d95d7f037868d8431124765"
 
-ms@2.0.0, ms@^2.0.0:
+ms@2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.0.0.tgz#5608aeadfc00be6c2901df5f9861788de0d597c8"
 
-ms@^2.1.1:
+ms@^2.0.0, ms@^2.1.1:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.2.tgz#d09d1f357b443f493382a8eb3ccd183872ae6009"
 
